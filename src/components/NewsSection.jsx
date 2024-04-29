@@ -1,13 +1,15 @@
-const Card = () => {
+import { useState, useEffect } from "react"
+
+const Card = (props) => {
     return(
-        <div className="card-single">
+        <div className={`card-single ${props.isMain && "card-main"}`}>
             <div className="image-container">
-                <img src="/images/bicycling.jpg" />
+                <img src={props.imageSrc} />
             </div>
             <div className="card-description">
-                <p><span className="card-date">24 April, 2024</span> <span className="card-category">Category</span></p>
-                <h2 className="card-title">Title: This is the title of the article. It can be a little long.</h2>
-                <p className="card-content">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit doloremque quo perferendis cumque! Ab, velit corporis alias reprehenderit </p>
+                <p><span className="card-date">{props.date}</span> <span className="card-category">{props.category}</span></p>
+                <h2 className="card-title">{props.title}</h2>
+                <p className="card-content">{props.content}</p>
                 <div className="card-line" />
                 <button className="card-button"><span className="links">Read More</span></button>
             </div>
@@ -15,28 +17,42 @@ const Card = () => {
     )
 }
 
+
 const NewsSection = () => {
+
+  const [news, setNews] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://my-json-server.typicode.com/infinitee404/json-blog/news');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setNews(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const cards = news.map(item => {
+    return <Card 
+        isMain = { (item.id == 1) ? true : false}
+        imageSrc = {item.imageSrc}
+        date = {item.date}
+        category = {item.category}
+        title = {item.title}
+        content = {item.content}
+    />
+    })
+
   return (
     <>
         <div className="news-container">
-            <div className="card-single card-main">
-                <div className="image-container">
-                    <img src="/images/bicycling.jpg" />
-                </div>
-                <div className="card-description">
-                    <p><span className="card-date">24 April, 2024</span> <span className="card-category">Category</span></p>
-                    <h2 className="card-title">Title: This is the title of the article. It can be a little long.</h2>
-                    <p className="card-content">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit doloremque quo perferendis cumque! Ab, velit corporis alias reprehenderit </p>
-                    <div className="card-line" />
-                    <button className="card-button"><span className="links">Read More</span></button>
-                </div>
-            </div>
-            <Card />
-            <Card />
-            <Card />
-            <Card />
-            <Card />
-            <Card />
+            {cards}
         </div>
     </>
   )
